@@ -1,0 +1,148 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{projectdoc}[2026/11/05 Project documentation style]
+
+% ---- Math, fonts and color ------------------------------------------------
+\RequirePackage{amsmath,amssymb}
+\RequirePackage{fontspec}
+\setmainfont{texgyreheros}[
+  Extension=.otf, UprightFont=*-regular, BoldFont=*-bold,
+  ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+% Prefer fonts with box-drawing characters, which TeX Gyre Cursor lacks.
+\IfFontExistsTF{DejaVu Sans Mono}
+  {\setmonofont{DejaVu Sans Mono}[Scale=MatchLowercase]}
+  {\IfFontExistsTF{Noto Sans Mono}
+    {\setmonofont{Noto Sans Mono}[Scale=MatchLowercase]}
+    {\setmonofont{texgyrecursor}[
+      Extension=.otf, UprightFont=*-regular, BoldFont=*-bold,
+      ItalicFont=*-italic, BoldItalicFont=*-bolditalic, Scale=MatchLowercase]}}
+
+\RequirePackage[table]{xcolor}
+\definecolor{pdaccent}{HTML}{\DocAccent}
+\definecolor{pdnote}{HTML}{1F6FB2}
+\definecolor{pdtip}{HTML}{2E7D4F}
+\definecolor{pdimportant}{HTML}{6B4FA0}
+\definecolor{pdwarning}{HTML}{B7791F}
+\definecolor{pdcaution}{HTML}{B23A3A}
+
+% ---- Pandoc support -------------------------------------------------------
+\RequirePackage{etoolbox}
+\RequirePackage{graphicx}
+\RequirePackage{longtable,booktabs,array,calc}
+\RequirePackage{tabularx}
+\RequirePackage{soul}
+\newcounter{none}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{%
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}\fi}
+\def\fps@figure{htbp}
+\makeatother
+\IfFileExists{footnotehyper.sty}{\RequirePackage{footnotehyper}}{\RequirePackage{footnote}}
+\makesavenoteenv{longtable}
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setlength{\emergencystretch}{3em}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{1}
+
+% ---- Code, callouts and diagrams ------------------------------------------
+\RequirePackage{fvextra}
+\fvset{fontsize=\footnotesize}
+\DefineVerbatimEnvironment{pdverb}{Verbatim}{breaklines,breakanywhere}
+\newcommand{\pdsetupcode}{%
+  \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breakanywhere,commandchars=\\\{\}}%
+  \ifcsname Shaded\endcsname\renewenvironment{Shaded}{}{}\else\newenvironment{Shaded}{}{}\fi}
+
+\RequirePackage[most]{tcolorbox}
+\usetikzlibrary{babel}
+\newtcolorbox{pdcode}{breakable, enhanced, sharp corners,
+  colback=black!3, colframe=black!12, boxrule=.4pt,
+  left=5pt, right=5pt, top=3pt, bottom=3pt, before skip=8pt, after skip=8pt}
+\newtcolorbox{pdadmonition}[2]{breakable, enhanced, sharp corners,
+  colback=#1!6, colframe=#1, boxrule=0pt, leftrule=2.5pt, titlerule=0pt,
+  colbacktitle=#1!6, coltitle=#1!75!black, fonttitle=\bfseries\small,
+  title={#2}, left=7pt, right=7pt, top=3pt, bottom=5pt,
+  toptitle=3pt, bottomtitle=-2pt, before skip=9pt, after skip=9pt}
+
+\newcommand{\pddiagram}[1]{%
+  \IfFileExists{#1.pdf}
+    {\begin{center}\sbox0{\includegraphics{#1.pdf}}%
+      % Leave room for the heading and text around a tall diagram.
+      \ifdim\ht0>.82\textheight\includegraphics[height=.82\textheight,width=\linewidth,keepaspectratio]{#1.pdf}%
+      \else\pandocbounded{\includegraphics[keepaspectratio]{#1.pdf}}\fi\end{center}}
+    {\begin{pdadmonition}{pdwarning}{\PdStrDiagram}
+       \VerbatimInput[breaklines,breakanywhere]{#1.mmd}
+     \end{pdadmonition}}}
+
+% ---- Headings and page style ----------------------------------------------
+\setkomafont{disposition}{\bfseries\color{pdaccent}}
+\setkomafont{chapter}{\fontsize{22}{27}\selectfont}
+\setkomafont{section}{\Large}
+\setkomafont{subsection}{\large}
+\setkomafont{descriptionlabel}{\bfseries}
+\RedeclareSectionCommand[beforeskip=0pt,afterskip=1.4\baselineskip]{chapter}
+\RequirePackage[automark,autooneside=false]{scrlayer-scrpage}
+\clearpairofpagestyles
+\setkomafont{pageheadfoot}{\small\color{black!60}}
+\setkomafont{pagenumber}{\small\color{black!60}}
+\ihead{\DocTitle}
+\ohead{\headmark}
+\ifoot[\DocClassification]{\DocClassification}
+\ofoot[\pagemark]{\pagemark}
+\pagestyle{scrheadings}
+
+% ---- Links ----------------------------------------------------------------
+\RequirePackage{xurl}
+\RequirePackage[colorlinks=true,linkcolor=pdaccent,
+  urlcolor=pdaccent,citecolor=pdaccent,bookmarksnumbered=true]{hyperref}
+\RequirePackage{bookmark}
+\hypersetup{pdftitle={\DocTitle},pdfauthor={\DocAuthor},pdfsubject={\DocSubtitle}}
+
+% ---- Cover and document control -------------------------------------------
+\newcommand{\pdcoverline}[2]{%
+  \ifdefempty{#2}{}{\noindent\makebox[3.4cm][l]{\color{black!55}#1}#2\par}}
+
+\newcommand{\pdcover}{%
+  \begin{titlepage}
+    \setlength{\parskip}{0pt}%
+    \ifdefempty{\DocLogo}{}{%
+      \noindent\includegraphics[height=1.6cm,width=7cm,keepaspectratio]{\DocLogo}\par\vspace{.8cm}}%
+    \ifdefempty{\DocOrganization}{}{{\noindent\large\color{black!60}\DocOrganization\par}}%
+    \vspace*{\stretch{1}}%
+    \noindent{\color{pdaccent}\rule{2.5cm}{3pt}}\par\vspace{.7cm}%
+    {\raggedright\fontsize{30}{36}\selectfont\bfseries\color{pdaccent}\DocTitle\par}%
+    \ifdefempty{\DocSubtitle}{}{\vspace{.5cm}{\raggedright\Large\color{black!70}\DocSubtitle\par}}%
+    \vspace*{\stretch{2}}%
+    \pdcoverline{\PdStrVersion}{\DocVersion}%
+    \pdcoverline{\PdStrDate}{\DocDate}%
+    \pdcoverline{\PdStrAuthor}{\DocAuthor}%
+    \pdcoverline{\PdStrClassification}{\DocClassification}%
+  \end{titlepage}}
+
+\newcommand{\pdrow}[2]{\textbf{#1} & \ifdefempty{#2}{---}{#2} \\}
+
+\newcommand{\pdcontrol}{%
+  \addchap*{\PdStrDocControl}%
+  \noindent\begin{tabularx}{\linewidth}{@{}p{4cm}X@{}}
+    \toprule
+    \pdrow{\PdStrOwner}{\DocOrganization}
+    \pdrow{\PdStrAuthor}{\DocAuthor}
+    \pdrow{\PdStrVersion}{\DocVersion}
+    \pdrow{\PdStrDate}{\DocDate}
+    \pdrow{\PdStrClassification}{\DocClassification}
+    \bottomrule
+  \end{tabularx}
+  \section*{\PdStrRevisions}
+  \noindent\begin{tabularx}{\linewidth}{@{}llp{3.5cm}X@{}}
+    \toprule
+    \textbf{\PdStrVersion} & \textbf{\PdStrDate} & \textbf{\PdStrAuthor} & \textbf{\PdStrDescription} \\
+    \midrule
+    \DocRevisionRows
+    \bottomrule
+  \end{tabularx}
+  \clearpage}

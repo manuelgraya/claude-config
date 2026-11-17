@@ -1,0 +1,22 @@
+% Compile with XeLaTeX: latexmk main.tex (or: tectonic main.tex)
+\documentclass[paper=a4,fontsize=10.5pt,DIV=12,parskip=half,headsepline=.4pt,numbers=noenddot]{scrreprt}
+
+\usepackage[shorthands=off,@@BABEL@@]{babel}
+@@BABELEXTRA@@
+\input{metadata}
+\usepackage{projectdoc}
+\input{highlighting}
+\pdsetupcode
+
+\begin{document}
+
+\pdcover
+\pagenumbering{roman}
+\pdcontrol
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\input{chapters}
+
+\end{document}
