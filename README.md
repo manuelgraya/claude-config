@@ -8,6 +8,11 @@ Mis skills de Claude Code.
 | `ai-context-vault` | Crea un vault de Obsidian `ai-context/` para agentes + un `CLAUDE.md` que lo enlaza |
 | `ai-context-verify` | Verifica que las notas de `ai-context/` siguen al día con el código |
 | `ai-review` | Revisión de código según las reglas del proyecto y generación de `ai-test/` |
+| `project-capture` | Capturas de webs y proyectos con Playwright, descubrimiento de menús/campos/selectores y flujos paso a paso con `report.md` |
+
+## Requisitos
+
+`project-capture` necesita Node ≥ 18, un Chromium/Chrome instalado y, una vez, `npm install --prefix skills/project-capture/scripts`.
 
 ## Instalación
 

@@ -1,0 +1,16 @@
+{
+  "name": "Create an item (tutorial)",
+  "baseUrl": "http://localhost:8080/",
+  "options": { "viewport": "1366x768", "storage": "captures/.auth/session.json" },
+  "steps": [
+    { "action": "goto", "url": "/", "screenshot": "home", "caption": "Home page after logging in" },
+    { "action": "discover", "name": "home-elements" },
+    { "action": "screenshot", "name": "open-menu", "highlight": "role=link[name=\"Items\"]", "caption": "Open the Items menu" },
+    { "action": "click", "selector": "role=link[name=\"Items\"]", "wait": "role=button[name=\"New\"]" },
+    { "action": "click", "selector": "role=button[name=\"New\"]", "screenshot": "new-form", "caption": "Empty form" },
+    { "action": "fill", "selector": "#name", "value": "Example item" },
+    { "action": "fill", "selector": "#apiKey", "value": "$ENV:APP_API_KEY" },
+    { "action": "select", "selector": "select[name=\"type\"]", "value": "standard" },
+    { "action": "screenshot", "name": "filled-form", "highlight": "role=button[name=\"Save\"]", "caption": "Form filled in; Save is highlighted" }
+  ]
+}
